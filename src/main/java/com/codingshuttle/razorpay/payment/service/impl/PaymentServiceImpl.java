@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -84,7 +85,35 @@ public class PaymentServiceImpl implements PaymentService {
         //TODO:: Publish Kafka Event
 
         return paymentMapper.toResponse(payment);
+    }
 
+    @Override
+    public PaymentResponse capture(UUID merchantId, UUID paymentId) {
+        Payment payment=paymentRepository.findByIdAndMerchantId(paymentId,merchantId)
+                .orElseThrow(()->new ResourceNotFoundException("Payment",paymentId));
+
+        payment.setStatus(PaymentStatus.CAPTURING);
+
+        PaymentResult paymentResult= paymentGatewayRouter.capture(payment.getMethod(),paymentId);
+
+        if(paymentResult instanceof PaymentResult.Success success)
+        {
+            payment.setStatus(PaymentStatus.CAPTURED);
+            payment.setCapturedAt(LocalDateTime.now());
+            log.info("Payment captured , paymentId : {}", paymentId);
+        }
+        else if(paymentResult instanceof PaymentResult.Failure failure)
+        {
+            payment.setStatus(PaymentStatus.AUTHORIZED);
+            payment.setErrorCode(failure.errorCode());
+            payment.setErrorDescription(failure.errorDescription());
+            log.warn("Payment capture failed , paymentId : {}", paymentId);
+        }
+
+        payment=paymentRepository.save(payment);
+        return paymentMapper.toResponse(payment);
+
+        //TODO:: Publish Kafka Event
 
     }
 }
