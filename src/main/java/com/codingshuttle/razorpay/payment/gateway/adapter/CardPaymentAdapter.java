@@ -28,7 +28,7 @@ public class CardPaymentAdapter implements PaymentAdapter {
             case PaymentProcessorResponse.Success success -> new PaymentResult.Success(success.bankReference());
             case PaymentProcessorResponse.Failure failure -> new PaymentResult.Failure(failure.errorCode(), failure.errorDescription());
             case PaymentProcessorResponse.Pending pending -> new PaymentResult.Pending(pending.processorReference());
-        }
+        };
     }
 
     @Override

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 
 public interface CardTokenRepository extends JpaRepository<CardToken, UUID> {
-    Optional<CardToken> findByTokenAndRevokedAtisNull(String token);
+    Optional<CardToken> findByTokenAndRevokedAtIsNull(String token);
 }
