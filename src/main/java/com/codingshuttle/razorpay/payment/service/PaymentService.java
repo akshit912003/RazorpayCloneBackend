@@ -11,4 +11,6 @@ public interface PaymentService {
     PaymentResponse initiate(UUID merchantId, PaymentInitRequest paymentInitRequest);
 
     PaymentResponse capture(UUID merchantId, UUID paymentId);
+
+    void resolveAuthorization(UUID id, boolean approve, String bankRef, String errorCode, String errorDescription);
 }
