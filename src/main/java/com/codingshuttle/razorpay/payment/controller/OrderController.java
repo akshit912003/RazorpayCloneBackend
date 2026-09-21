@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.payment.controller;
 
+import com.codingshuttle.razorpay.merchant.security.MerchantContext;
 import com.codingshuttle.razorpay.payment.dto.request.CreateOrderRequest;
 import com.codingshuttle.razorpay.payment.dto.response.OrderResponse;
 import com.codingshuttle.razorpay.payment.dto.response.PaymentResponse;
@@ -19,31 +20,32 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
-    UUID merchantId= UUID.fromString("90d5b401-ab84-463f-a825-60c5f078c635"); // For Testing now , later will add Merchant Context
+    private final MerchantContext merchantContext;
+
 
     @PostMapping
     public ResponseEntity<OrderResponse> create (@Valid @RequestBody CreateOrderRequest request)
     {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.create(merchantId,request));
+                .body(orderService.create(merchantContext.getMerchantId(),request));
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getById(@PathVariable UUID orderId)
     {
-        return ResponseEntity.ok(orderService.getById(merchantId,orderId));
+        return ResponseEntity.ok(orderService.getById(merchantContext.getMerchantId(),orderId));
     }
 
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponse> cancel(@PathVariable UUID orderId)
     {
-        return ResponseEntity.ok(orderService.cancel(merchantId,orderId));
+        return ResponseEntity.ok(orderService.cancel(merchantContext.getMerchantId(),orderId));
     }
 
     @GetMapping("/{orderId}/payments")
     public ResponseEntity<List<PaymentResponse>> listPayments(@PathVariable UUID orderId)
     {
-        return ResponseEntity.ok(orderService.listPayments(merchantId,orderId));
+        return ResponseEntity.ok(orderService.listPayments(merchantContext.getMerchantId(),orderId));
     }
 
 }
