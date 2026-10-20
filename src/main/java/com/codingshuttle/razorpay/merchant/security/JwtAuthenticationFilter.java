@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtUtil jwtUtil;
-    private MerchantContext merchantContext;
+    private final MerchantContext merchantContext;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         List.of(new SimpleGrantedAuthority("ROLE_" + jwtUtil.extractRole(claims))));
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                merchantContext.setMerchantId(UUID.fromString(jwtUtil.extractMerchantId(claims)));
+                 merchantContext.setMerchantId(UUID.fromString(jwtUtil.extractMerchantId(claims)));
 
             }
             filterChain.doFilter(request,response);
