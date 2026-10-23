@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.merchant.security;
 
+import com.codingshuttle.razorpay.common.idempotency.IdempotencyFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,8 @@ public class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
+    private final IdempotencyFilter idempotencyFilter;
+
     private static final String[] JWT_ROUTES={"/v1/auth/**","/v1/merchants/**","/v1/admin/**"};
     private static final String[] API_KEY_ROUTES={"/v1/orders/**", "/v1/payments/**", "/v1/vault/**"};
 
@@ -33,6 +36,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/v1/auth/signup", "/v1/auth/login").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(idempotencyFilter, JwtAuthenticationFilter.class)
                 .formLogin(form->form.disable())
                 .build();
     }
@@ -47,6 +51,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth->auth
                         .anyRequest().authenticated())
                 .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(idempotencyFilter, ApiKeyAuthenticationFilter.class)
                 .build();
     }
 
